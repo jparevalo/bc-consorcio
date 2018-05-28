@@ -3,7 +3,7 @@ ___
 Juan Pablo Arévalo, Sebastián Durán, Jaime Echeverría
 
 ___
-##Description
+## Description
 This Project consists of designing a smart contract in order to manage destitions of any kind amongst a consortium.
 
 This consortium will consist of a non-limited ammount of people, who will be able to propose the addition or removal of another members to/from the consortium.
@@ -12,7 +12,7 @@ The members will also be able to propose different ideas or actions, which will 
 
 The smart contract will receive commands sent by the current consortium members and it will be in charge of managing them and registering the corresponding votes. The results will be accesible by all consortium members via a special command.
 
-##Use Cases
+## Use Cases
 
 1. New Proposal (Add/Remove members, idea or action)
 2. Voting on a Proposal
@@ -22,7 +22,7 @@ The smart contract will receive commands sent by the current consortium members 
 6. Requesting for the Deletion of a Proposal.
 7. Requesting a direct elimination of a member
 
-##Rules
+## Rules
 1. Every consortium member will be able to vote on a proposal.
 2. Any vote from a member out of the consortium will be invalid.
 3. There must be a minimum quorum of 65% to end a proposal.
