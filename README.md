@@ -34,3 +34,4 @@ The smart contract will receive commands sent by the current consortium members 
 9. If a member of future member is being consider for removal/addition, they will not be able to vote and will not be considered in the quorum/vote count conditions.
 10. No member can vote more than once on the same proposal.
 11. Any member can send a special command to request a RE-Vote. If there is an active proposal which is older than 72 hours, and rules 3 and 4 aren't met for that proposal, this proposal will be reset.
+12. Any member can send a special command to request deleting an active proposal. If there is an active proposal which is older than 72 hours, and rules 3 and 4 aren't met for that proposal, this proposal will be deleted.
