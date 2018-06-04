@@ -9,13 +9,95 @@ contract TestConsortium {
   function testInitialMemberAddressIsInNewConsortium() public {
     // Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
-    address initial_member_address = 0x01;
+    address initial_member_address = msg.sender;
     bool expected_response = true;
 
     // Act
     bool is_member_in_consortium = cons.isMemberInConsortium(initial_member_address);
 
-    Assert.equal(expected_response, is_member_in_consortium, "Address 0x00 should be a member of the consortium");
+    // Assert
+    Assert.equal(expected_response, is_member_in_consortium, "Sender address should be a member of the consortium");
   }
+
+  function testAddExistingMember() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address existing_member_address = msg.sender;
+    bool expected_response = false;
+
+    // Act
+    bool could_add_same_member = cons.addMember(existing_member_address);
+
+    // Assert
+    Assert.equal(expected_response, could_add_same_member, "Sender address shouldnt be added twice to consortium" );
+  }
+
+  function testAddNonExistingMember() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address non_existing_member_address = 0x01;
+    bool expected_response = true;
+
+    // Act
+    bool could_add_same_member = cons.addMember(non_existing_member_address);
+
+    // Assert
+    Assert.equal(expected_response, could_add_same_member, "New address 0x01 should be added to the consortium" );
+  }
+
+  function testRemoveExistingMember() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address existing_member_address = msg.sender;
+    bool expected_response = true;
+
+    // Act
+    bool could_remove_member = cons.removeMember(existing_member_address);
+
+    // Assert
+    Assert.equal(expected_response, could_remove_member, "Sender address should be removed from the consortium" );
+  }
+
+  function testRemoveNonExistingMember() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address non_existing_member_address = 0xFFFF;
+    bool expected_response = false;
+
+    // Act
+    bool could_remove_member = cons.removeMember(non_existing_member_address);
+
+    // Assert
+    Assert.equal(expected_response, could_remove_member, "0xFFFF shouldnt be removed from the consortium since its not a part of it yet" );
+  }
+
+  function testCreateNewProposalWhenThereIsNoActiveProposal() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool expected_response = true;
+
+    // Act
+    bool proposal_created = cons.newProposal(new_proposal_name, new_proposal_type);
+
+    // Assert
+    Assert.equal(expected_response, proposal_created, "Proposal should be created since there is no active one");
+  }
+
+  /* function testCreateNewProposalWhenThereIsAnActiveProposal() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool expected_response = false;
+
+    // Act
+    bool proposal_created = cons.newProposal(new_proposal_name, new_proposal_type);
+
+    // Assert
+    Revert.equal(expected_response, proposal_created, "Proposal should not be created since there is an active one");
+  } */
+
 
 }

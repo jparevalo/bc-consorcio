@@ -7,7 +7,8 @@ contract Consortium {
     // be used for variables later.
     // It will represent a single voter.
     struct Proposal {
-      bytes32 proposal_name;
+      bytes32 name;
+      bytes32 proposal_type;
       bool is_active;
       uint started_on;
       ProposalStatus votes;
@@ -28,26 +29,39 @@ contract Consortium {
     mapping (uint => Proposal) old_proposals;
     mapping (address => Member) consortium_members;
     uint numProposals;
+    uint numMembers;
 
     constructor(/*uint minimum_quorum, uint minimum_agreement, uint special_command_hours*/) public{
-      addMember(0x01);
+      addMember(msg.sender);
       numProposals = 0;
-      active_proposal = Proposal('0',false,now,ProposalStatus(0,0));
+      numMembers = 0;
+      active_proposal = Proposal('0','DESITION',false,now,ProposalStatus(0,0));
     }
 
-    function addMember(address member_address) private{
-      consortium_members[member_address] = Member(member_address, false);
+    function addMember(address member_address) public returns(bool){
+      if (consortium_members[member_address].member_address == 0){
+        consortium_members[member_address] = Member(member_address, false);
+        numMembers++;
+        return true;
+      }
+      return false;
     }
 
-    function removeMember(address member_address) private{
-      delete consortium_members[member_address];
+    function removeMember(address member_address) public returns(bool){
+      if (consortium_members[member_address].member_address != 0){
+        delete consortium_members[member_address];
+        numMembers--;
+        return true;
+      }
+      return false;
     }
 
-    function newProposal(bytes32 name) public{
+    function newProposal(bytes32 name, bytes32 proposal_type) public returns(bool){
       require(!active_proposal.is_active);
       old_proposals[numProposals] = active_proposal;
-      active_proposal = Proposal(name, true, now, ProposalStatus(0,0));
+      active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0));
       numProposals++;
+      return true;
     }
 
     function vote(address voter_address, bool _vote) public{
@@ -63,6 +77,10 @@ contract Consortium {
         return true;
       }
       return false;
+    }
+
+    function getActiveProposalName() public view returns(bytes32){
+      return active_proposal.name;
     }
 
 }
