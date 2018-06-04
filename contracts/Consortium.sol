@@ -15,7 +15,6 @@ contract Consortium {
     }
 
     struct Member {
-      bytes32 member_address;
       bool is_under_evaluation;
     }
 
@@ -29,31 +28,31 @@ contract Consortium {
     mapping (address => Member) consortium_members;
     uint numProposals;
 
-    function Consortium(uint minimum_quorum, uint minimum_agreement, uint spcial_command_hours) {
-      addMember('admin');
+    constructor(/*uint minimum_quorum, uint minimum_agreement, uint special_command_hours*/) public{
+      addMember(0x789CAfd6B0A6e60f6DE5E386a7C2Cb7a5F33cfe6);
       numProposals = 0;
-      active_proposal = Proposal('0',false,now);
+      active_proposal = Proposal('0',false,now,ProposalStatus(0,0));
     }
 
-    function addMember(bytes32 member_address){
-      consortium_members[sender] = Member(member_name, false);
+    function addMember(address member_address) private{
+      consortium_members[member_address] = Member(false);
     }
 
-    function removeMember(address member_address){
+    function removeMember(address member_address) private{
       delete consortium_members[member_address];
     }
 
-    function newProposal(bytes32 name){
+    function newProposal(bytes32 name) public{
       require(!active_proposal.is_active);
-      old_proposals[numProposals] = active_proposal
+      old_proposals[numProposals] = active_proposal;
       active_proposal = Proposal(name, true, now, ProposalStatus(0,0));
       numProposals++;
     }
 
-    function vote(bytes32 voter_id, bool _vote) {
-      require(_vote == 'y' || _vote == 'n');
-      require(!active_proposal.voted[sender]);
-      active_proposal.voted[sender] = true;
+    function vote(address voter_address, bool _vote) public{
+      require(_vote == true || _vote == false);
+      require(!active_proposal.voted[voter_address]);
+      active_proposal.voted[voter_address] = true;
       if(_vote) active_proposal.votes.in_favor += 1;
       else active_proposal.votes.against += 1;
     }
