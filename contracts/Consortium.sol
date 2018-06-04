@@ -15,6 +15,7 @@ contract Consortium {
     }
 
     struct Member {
+      address member_address;
       bool is_under_evaluation;
     }
 
@@ -29,13 +30,13 @@ contract Consortium {
     uint numProposals;
 
     constructor(/*uint minimum_quorum, uint minimum_agreement, uint special_command_hours*/) public{
-      addMember(0x789CAfd6B0A6e60f6DE5E386a7C2Cb7a5F33cfe6);
+      addMember(0x01);
       numProposals = 0;
       active_proposal = Proposal('0',false,now,ProposalStatus(0,0));
     }
 
     function addMember(address member_address) private{
-      consortium_members[member_address] = Member(false);
+      consortium_members[member_address] = Member(member_address, false);
     }
 
     function removeMember(address member_address) private{
@@ -55,6 +56,13 @@ contract Consortium {
       active_proposal.voted[voter_address] = true;
       if(_vote) active_proposal.votes.in_favor += 1;
       else active_proposal.votes.against += 1;
+    }
+
+    function isMemberInConsortium(address member_address) public view returns(bool){
+      if (consortium_members[member_address].member_address != 0){
+        return true;
+      }
+      return false;
     }
 
 }
