@@ -6,7 +6,7 @@ import "../contracts/Consortium.sol";
 
 contract TestConsortium {
 
-  function testInitialMemberAddressIsInNewConsortium() public {
+  function testInitialMemberAddressIsAddedInNewConsortium() public {
     // Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
     address initial_member_address = msg.sender;
@@ -85,7 +85,7 @@ contract TestConsortium {
     Assert.equal(expected_response, proposal_created, "Proposal should be created since there is no active one");
   }
 
-  /* function testCreateNewProposalWhenThereIsAnActiveProposal() public {
+  function testCreateNewProposalWhenThereIsAnActiveProposal() public {
     // Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
     bytes32 new_proposal_name = "Kick member 0x01";
@@ -96,8 +96,8 @@ contract TestConsortium {
     bool proposal_created = cons.newProposal(new_proposal_name, new_proposal_type);
 
     // Assert
-    Revert.equal(expected_response, proposal_created, "Proposal should not be created since there is an active one");
-  } */
+    Assert.equal(expected_response, proposal_created, "Proposal should not be created since there is an active one");
+  }
 
 
 }

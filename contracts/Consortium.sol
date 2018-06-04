@@ -32,9 +32,9 @@ contract Consortium {
     uint numMembers;
 
     constructor(/*uint minimum_quorum, uint minimum_agreement, uint special_command_hours*/) public{
-      addMember(msg.sender);
       numProposals = 0;
       numMembers = 0;
+      addMember(msg.sender);
       active_proposal = Proposal('0','DESITION',false,now,ProposalStatus(0,0));
     }
 
@@ -67,6 +67,7 @@ contract Consortium {
     function vote(address voter_address, bool _vote) public{
       require(_vote == true || _vote == false);
       require(!active_proposal.voted[voter_address]);
+      require(isMemberInConsortium(voter_address));
       active_proposal.voted[voter_address] = true;
       if(_vote) active_proposal.votes.in_favor += 1;
       else active_proposal.votes.against += 1;
