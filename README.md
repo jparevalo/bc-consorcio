@@ -4,7 +4,7 @@ Juan Pablo Arévalo, Sebastián Durán, Jaime Echeverría
 
 ___
 ## Description
-This Project consists of designing a smart contract in order to manage destitions of any kind amongst a consortium.
+This Project consists of designing a smart contract in order to manage desitions of any kind amongst a consortium.
 
 This consortium will consist of a non-limited ammount of people, who will be able to propose the addition or removal of another members to/from the consortium.
 
@@ -29,9 +29,9 @@ The smart contract will receive commands sent by the current consortium members 
 4. There must be a minimum agreement rate of 80% to consider a proposal as APPROVED or REJECTED.
 5. There can only be one active proposal, the contract will not accept new proposals unless rules 3 and 4 are met for the current proposal.
 6. In order to remove a member from the consortium, there must be a minimum quorum of 50% and a positive vote count of at least half the current consortium members.
-7. To add members, the same conditions establihed in 6 must be met.
+7. To add members, the same conditions established in 6 must be met.
 8. In the case where more than 50% of the members are inactive members, an active member can send a special command in order to remove another consortium member directly. The member will be removed only if there is an active removal proposal more than 72 hours old.
-9. If a member of future member is being consider for removal/addition, they will not be able to vote and will not be considered in the quorum/vote count conditions.
+9. If a member or future member is being considered for removal/addition, they will not be able to vote and will not be considered in the quorum/vote count conditions.
 10. No member can vote more than once on the same proposal.
 11. Any member can send a special command to request a RE-Vote. If there is an active proposal which is older than 72 hours, and rules 3 and 4 aren't met for that proposal, this proposal will be reset.
 12. Any member can send a special command to request deleting an active proposal. If there is an active proposal which is older than 72 hours, and rules 3 and 4 aren't met for that proposal, this proposal will be deleted.
