@@ -69,6 +69,20 @@ contract Consortium {
       }
     }
 
+    function removeProposal() public returns(bool){
+      //require(!active_proposal.is_active);
+      if(active_proposal.is_active){
+        //Not sure if it should remove proposal from old_proposals list
+        //delete old_proposals[numProposals];
+        delete active_proposal;
+        numProposals--;
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+
     function vote(address voter_address, bool _vote) public returns(bool){
       //require(_vote == true || _vote == false);
       //require(!active_proposal.voted[voter_address]);

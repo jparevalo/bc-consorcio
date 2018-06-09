@@ -154,4 +154,35 @@ contract TestConsortium {
     Assert.equal(expected_response, could_vote_without_active_proposal, "A vote should not be added since the member has already voted");
   }
 
+  function testGettingNameOfActiveProposal() public {
+    //Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool expected_response = true;
+
+    //active
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    bytes32 name_of_proposal = cons.getActiveProposalName();
+    bool found_name_of_proposal = (name_of_proposal == new_proposal_name);
+
+    //Assert
+    Assert.equal(expected_response, found_name_of_proposal,"A name should be found since an active proposal was created");
+  }
+
+  function testRemovingActiveProposal() public {
+    //Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool expected_response = true;
+
+    //active
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    bool could_remove_proposal = cons.removeProposal();
+
+    //Assert
+    Assert.equal(expected_response, could_remove_proposal,"A proposal should be removed since an active proposal was created");
+  }
+
 }
