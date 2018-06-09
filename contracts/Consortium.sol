@@ -73,6 +73,34 @@ contract Consortium {
       else active_proposal.votes.against += 1;
     }
 
+    function countVotedActiveProposal() public returns (uint){
+      uint consortium_votes = active_proposal.votes.in_favor + active_proposal.votes.against;
+      return consortium_votes;
+    }
+
+    function checkMinConsortiumQuorum() public returns (bool){
+      uint minNumMembers = 65*numMembers;
+      if (uint(countVotedActiveProposal()*100 > minNumMembers ){
+        return true;
+      }
+      return false;
+    }
+
+    function checkMinConsortiumQuorumVotesInFavor()public returns (bool){
+      uint consortium_votes_in_favor = active_proposal.votes.in_favor;
+      if (consortium_votes_in_favor*100 > countVotedActiveProposal()*80){
+        return true;
+      }
+      return false;
+    }
+
+    function checkfinishProposal() public{
+      if (checkMinConsortiumQuorum() && checkMinConsortiumQuorumVotesInFavor()){
+        active_proposal.is_active = false;
+        add old_proposals[active_proposal];
+      }
+    }
+
     function isMemberInConsortium(address member_address) public view returns(bool){
       if (consortium_members[member_address].member_address != 0){
         return true;
