@@ -99,5 +99,59 @@ contract TestConsortium {
     Assert.equal(expected_response, proposal_created, "Proposal should not be created since there is an active one");
   }
 
+  function testVotingOnActiveProposalWithExistingMember() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address non_existing_member_address = 0x01;
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool new_vote = false;
+    bool expected_response = true;
+
+    // Act
+    cons.addMember(non_existing_member_address);
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    bool could_vote_with_existing_member = cons.vote(non_existing_member_address, new_vote);
+
+    // Assert
+    Assert.equal(expected_response, could_vote_with_existing_member, "A vote should be added to a proposal by a member since there is an active one and member exists");
+  }
+
+  function testVotingOnActiveProposalWithNonExistingMember() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address non_existing_member_address = 0xFFFF;
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool new_vote = false;
+    bool expected_response = false;
+
+    // Act
+    //cons.addMember(non_existing_member_address);
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    bool could_vote_with_existing_member = cons.vote(non_existing_member_address, new_vote);
+
+    // Assert
+    Assert.equal(expected_response, could_vote_with_existing_member, "A vote should not be added to a proposal by a member since member doesnt exist");
+  }
+
+  function testVotingOnActiveProposalWithExistingMemberThatAlreadyVoted() public {
+    // Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address non_existing_member_address = 0x01;
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool new_vote = false;
+    bool expected_response = false;
+
+    // Act
+    cons.addMember(non_existing_member_address);
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    cons.vote(non_existing_member_address, new_vote);
+    bool could_vote_without_active_proposal = cons.vote(non_existing_member_address, new_vote);
+
+    // Assert
+    Assert.equal(expected_response, could_vote_without_active_proposal, "A vote should not be added since the member has already voted");
+  }
 
 }

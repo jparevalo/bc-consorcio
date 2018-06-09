@@ -69,13 +69,22 @@ contract Consortium {
       }
     }
 
-    function vote(address voter_address, bool _vote) public{
-      require(_vote == true || _vote == false);
-      require(!active_proposal.voted[voter_address]);
-      require(isMemberInConsortium(voter_address));
-      active_proposal.voted[voter_address] = true;
-      if(_vote) active_proposal.votes.in_favor += 1;
-      else active_proposal.votes.against += 1;
+    function vote(address voter_address, bool _vote) public returns(bool){
+      //require(_vote == true || _vote == false);
+      //require(!active_proposal.voted[voter_address]);
+      //require(isMemberInConsortium(voter_address));
+      bool vote_exists = (_vote == true || _vote == false);
+      bool voter_hasnt_voted = !active_proposal.voted[voter_address];
+      bool voter_is_member = isMemberInConsortium(voter_address);
+      if(vote_exists && voter_hasnt_voted && voter_is_member){
+        active_proposal.voted[voter_address] = true;
+        if(_vote) active_proposal.votes.in_favor += 1;
+        else active_proposal.votes.against += 1;
+        return true;
+      }
+      else{
+        return false;
+      }
     }
 
     function isMemberInConsortium(address member_address) public view returns(bool){
