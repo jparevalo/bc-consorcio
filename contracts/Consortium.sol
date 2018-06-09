@@ -57,11 +57,16 @@ contract Consortium {
     }
 
     function newProposal(bytes32 name, bytes32 proposal_type) public returns(bool){
-      require(!active_proposal.is_active);
-      old_proposals[numProposals] = active_proposal;
-      active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0));
-      numProposals++;
-      return true;
+      //require(!active_proposal.is_active);
+      if(!active_proposal.is_active){
+        old_proposals[numProposals] = active_proposal;
+        active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0));
+        numProposals++;
+        return true;
+      }
+      else{
+        return false;
+      }
     }
 
     function vote(address voter_address, bool _vote) public{
