@@ -39,6 +39,7 @@ contract Consortium {
     }
 
     function addMember(address member_address) public returns(bool){
+      require (checkAddMemberToProposal(member_address));
       if (consortium_members[member_address].member_address == 0){
         consortium_members[member_address] = Member(member_address, false);
         numMembers++;
@@ -48,6 +49,7 @@ contract Consortium {
     }
 
     function removeMember(address member_address) public returns(bool){
+      require (checkRemoveMemberFromProposal(member_address));
       if (consortium_members[member_address].member_address != 0){
         delete consortium_members[member_address];
         numMembers--;
@@ -78,7 +80,7 @@ contract Consortium {
       return consortium_votes;
     }
 
-    function checkMinConsortiumQuorum() public returns (bool){
+    function checkMin65PercentConsortiumQuorum() public returns (bool){
       uint minNumMembers = 65*numMembers;
       if (uint(countVotedActiveProposal()*100) > minNumMembers){
         return true;
@@ -86,7 +88,15 @@ contract Consortium {
       return false;
     }
 
-    function checkMinConsortiumQuorumVotesInFavor()public returns (bool){
+    function checkMin50PercentConsortiumQuorum() public returns (bool){
+      uint minNumMembers = 50*numMembers;
+      if (uint(countVotedActiveProposal()*100) > minNumMembers){
+        return true;
+      }
+      return false;
+    }
+
+    function checkMin80PercentConsortiumQuorumVotesInFavor()public returns (bool){
       uint consortium_votes_in_favor = active_proposal.votes.in_favor;
       if (consortium_votes_in_favor*100 > countVotedActiveProposal()*80){
         return true;
@@ -94,10 +104,32 @@ contract Consortium {
       return false;
     }
 
+    function checkMin50PercentConsortiumQuorumVotesInFavor() public returns (bool){
+      uint consortium_votes_in_favor = active_proposal.votes.in_favor;
+      if (consortium_votes_in_favor*100 > countVotedActiveProposal()*50){
+        return true;
+      }
+      return false;
+    }
+
     function checkFinishProposal() public{
-      if (checkMinConsortiumQuorum() && checkMinConsortiumQuorumVotesInFavor()){
+      if (checkMin65PercentConsortiumQuorum() && checkMin80PercentConsortiumQuorumVotesInFavor()){
         active_proposal.is_active = false;
       }
+    }
+
+    function checkAddMemberToProposal(address member_address) public returns(bool){
+      if (checkMin50PercentConsortiumQuorum() && checkMin50PercentConsortiumQuorumVotesInFavor()){
+        return true;
+      }
+      return false;
+    }
+
+    function checkRemoveMemberFromProposal(address member_address) public returns(bool){
+      if (checkMin50PercentConsortiumQuorum() && checkMin50PercentConsortiumQuorumVotesInFavor() && consortium_members[member_address].is_under_evaluation){
+        return true;
+      }
+      return false;
     }
 
     function isMemberInConsortium(address member_address) public view returns(bool){

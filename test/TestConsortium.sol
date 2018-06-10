@@ -292,7 +292,7 @@ contract TestConsortium {
     cons.newProposal(new_proposal_name, new_proposal_type);
     cons.vote(new_member_address, new_member_vote);
     cons.vote(new_member_address_2, new_member_vote_2);
-    bool reaches_member_quorum = cons.checkMinConsortiumQuorum();
+    bool reaches_member_quorum = cons.checkMin65PercentConsortiumQuorum();
 
     //Assert
     Assert.equal(expected_result, reaches_member_quorum,"The quorum should be reached since enough members voted on active proposal");
@@ -315,7 +315,7 @@ contract TestConsortium {
     cons.addMember(new_member_address_3);
     cons.newProposal(new_proposal_name, new_proposal_type);
     cons.vote(new_member_address, new_member_vote);
-    bool reaches_member_quorum = cons.checkMinConsortiumQuorum();
+    bool reaches_member_quorum = cons.checkMin65PercentConsortiumQuorum();
 
     //Assert
     Assert.equal(expected_result, reaches_member_quorum,"The quorum should not be reached since not enough members voted on active proposal");
