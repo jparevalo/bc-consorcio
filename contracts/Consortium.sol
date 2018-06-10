@@ -109,7 +109,7 @@ contract Consortium {
 
     function checkMinConsortiumQuorum() public returns (bool){
       uint minNumMembers = 65*numMembers;
-      if (uint(countVotedActiveProposal()*100 > minNumMembers ){
+      if (uint(countVotedActiveProposal()*100) > minNumMembers){
         return true;
       }
       return false;
@@ -123,10 +123,10 @@ contract Consortium {
       return false;
     }
 
-    function checkfinishProposal() public{
+    function checkFinishProposal() public{
       if (checkMinConsortiumQuorum() && checkMinConsortiumQuorumVotesInFavor()){
         active_proposal.is_active = false;
-        add old_proposals[active_proposal];
+        //add old_proposals[active_proposal];
       }
     }
 
