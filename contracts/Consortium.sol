@@ -80,7 +80,7 @@ contract Consortium {
 
     function checkMinConsortiumQuorum() public returns (bool){
       uint minNumMembers = 65*numMembers;
-      if (uint(countVotedActiveProposal()*100 > minNumMembers ){
+      if (uint(countVotedActiveProposal()*100) > minNumMembers){
         return true;
       }
       return false;
@@ -94,6 +94,12 @@ contract Consortium {
       return false;
     }
 
+    function checkFinishProposal() public{
+      if (checkMinConsortiumQuorum() && checkMinConsortiumQuorumVotesInFavor()){
+        active_proposal.is_active = false;
+      }
+    }
+
     function isMemberInConsortium(address member_address) public view returns(bool){
       if (consortium_members[member_address].member_address != 0){
         return true;
@@ -103,6 +109,14 @@ contract Consortium {
 
     function getActiveProposalName() public view returns(bytes32){
       return active_proposal.name;
+    }
+
+    function getActiveProposalType() public view returns(bytes32){
+      return active_proposal.proposal_type;
+    }
+
+    function getActiveProposalActivity() public view returns(bool){
+      return active_proposal.is_active;
     }
 
 }
