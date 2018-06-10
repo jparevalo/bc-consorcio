@@ -206,6 +206,37 @@ contract TestConsortium {
     Assert.equal(expected_response, found_name_of_proposal,"A name should be found since an active proposal was created");
   }
 
+  function testGettingTypeOfActiveProposal() public {
+    //Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool expected_response = true;
+
+    //active
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    bytes32 type_of_proposal = cons.getActiveProposalType();
+    bool found_name_of_proposal = (type_of_proposal == new_proposal_type);
+
+    //Assert
+    Assert.equal(expected_response, found_name_of_proposal,"A type should be found since an active proposal was created");
+  }
+
+  function testGettingActivityOfActiveProposal() public {
+    //Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool expected_response = true;
+
+    //active
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    bool activity_of_proposal = cons.getActiveProposalActivity();
+
+    //Assert
+    Assert.equal(expected_response, activity_of_proposal,"An activity should be found since an active proposal was created");
+  }
+
   function testRemovingActiveProposal() public {
     //Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
@@ -219,6 +250,75 @@ contract TestConsortium {
 
     //Assert
     Assert.equal(expected_response, could_remove_proposal,"A proposal should be removed since an active proposal was created");
+  }
+
+  function testCountingVotesOnActiveProposal() public {
+    //Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address new_member_address = 0x01;
+    address new_member_address_2 = 0x02;
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool new_member_vote = true;
+    bool new_member_vote_2 = true;
+    uint expected_vote_count = 2;
+
+    //active
+    cons.addMember(new_member_address);
+    cons.addMember(new_member_address_2);
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    cons.vote(new_member_address, new_member_vote);
+    cons.vote(new_member_address_2, new_member_vote_2);
+    uint number_of_votes = cons.countVotedActiveProposal();
+
+    //Assert
+    Assert.equal(expected_vote_count, number_of_votes,"The vote count should be 2 because the active proposal was voted on twice");
+  }
+
+  function testConstortiumQuorumOnActiveProposalWithEnoughMembers() public {
+    //Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address new_member_address = 0x01;
+    address new_member_address_2 = 0x02;
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool new_member_vote = true;
+    bool new_member_vote_2 = true;
+    bool expected_result = true;
+
+    //active
+    cons.addMember(new_member_address);
+    cons.addMember(new_member_address_2);
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    cons.vote(new_member_address, new_member_vote);
+    cons.vote(new_member_address_2, new_member_vote_2);
+    bool reaches_member_quorum = cons.checkMinConsortiumQuorum();
+
+    //Assert
+    Assert.equal(expected_result, reaches_member_quorum,"The quorum should be reached since enough members voted on active proposal");
+  }
+
+  function testConstortiumQuorumOnActiveProposalWithoutEnoughMembers() public {
+    //Arrange
+    Consortium cons = Consortium(DeployedAddresses.Consortium());
+    address new_member_address = 0x01;
+    address new_member_address_2 = 0x02;
+    address new_member_address_3 = 0x03;
+    bytes32 new_proposal_name = "Kick member 0x01";
+    bytes32 new_proposal_type = "REMOVE";
+    bool new_member_vote = true;
+    bool expected_result = false;
+
+    //active
+    cons.addMember(new_member_address);
+    cons.addMember(new_member_address_2);
+    cons.addMember(new_member_address_3);
+    cons.newProposal(new_proposal_name, new_proposal_type);
+    cons.vote(new_member_address, new_member_vote);
+    bool reaches_member_quorum = cons.checkMinConsortiumQuorum();
+
+    //Assert
+    Assert.equal(expected_result, reaches_member_quorum,"The quorum should not be reached since not enough members voted on active proposal");
   }
 
 }

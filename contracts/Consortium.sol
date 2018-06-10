@@ -153,4 +153,12 @@ contract Consortium {
       return active_proposal.name;
     }
 
+    function getActiveProposalType() public view returns(bytes32){
+      return active_proposal.proposal_type;
+    }
+
+    function getActiveProposalActivity() public view returns(bool){
+      return active_proposal.is_active;
+    }
+
 }
