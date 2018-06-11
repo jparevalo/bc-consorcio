@@ -6,7 +6,7 @@ import "../contracts/Consortium.sol";
 
 contract TestConsortium {
 
-  function testInitialMemberAddressIsAddedInNewConsortium() public {
+  function testIsMemberAddressInConsortium() public {
     // Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
     address initial_member_address = msg.sender;
@@ -48,10 +48,12 @@ contract TestConsortium {
   function testRemoveExistingMember() public {
     // Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
-    address existing_member_address = msg.sender;
+    address non_existing_member_address = 0xFFFA;
     bool expected_response = true;
 
     // Act
+    cons.addMember(non_existing_member_address);
+    address existing_member_address = non_existing_member_address;
     bool could_remove_member = cons.removeMember(existing_member_address);
 
     // Assert
@@ -71,30 +73,15 @@ contract TestConsortium {
     Assert.equal(expected_response, could_remove_member, "0xFFFF shouldnt be removed from the consortium since its not a part of it yet" );
   }
 
-  function testCheckExistingMemberIfUnderEvaluation() public {
-    // Arrange
-    Consortium cons = Consortium(DeployedAddresses.Consortium());
-    address existing_member_address = msg.sender;
-    bool expected_evaluation_state = false;
-    bool expected_response = true;
-
-    // Act
-    bool under_evaluation_state = cons.isMemberUnderEvaluation(existing_member_address);
-    bool could_get_member_under_evaluation_state = under_evaluation_state == expected_evaluation_state;
-
-    //Assert
-    Assert.equal(expected_response, could_get_member_under_evaluation_state, "Evaluation state of member should be retrieved since member exists");
-  }
-
   function testCreateNewProposalWhenThereIsNoActiveProposal() public {
     // Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
-    bytes32 new_proposal_name = "Kick member 0x01";
-    bytes32 new_proposal_type = "REMOVE";
+    bytes32 new_proposal_name = "Should we eat sushi tomorrow?";
+    bytes32 new_proposal_type = "DESITION";
     bool expected_response = true;
 
     // Act
-    bool proposal_created = cons.newProposal(new_proposal_name, new_proposal_type);
+    bool proposal_created = cons.newProposal(new_proposal_name, new_proposal_type, 0);
 
     // Assert
     Assert.equal(expected_response, proposal_created, "Proposal should be created since there is no active one");
@@ -108,7 +95,7 @@ contract TestConsortium {
     bool expected_response = false;
 
     // Act
-    bool proposal_created = cons.newProposal(new_proposal_name, new_proposal_type);
+    bool proposal_created = cons.newProposal(new_proposal_name, new_proposal_type, 0);
 
     // Assert
     Assert.equal(expected_response, proposal_created, "Proposal should not be created since there is an active one");
@@ -117,38 +104,38 @@ contract TestConsortium {
   function testVotingOnActiveProposalWithExistingMember() public {
     // Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
-    address existing_member_address = msg.sender;
     bytes32 new_proposal_name = "Kick member 0x01";
     bytes32 new_proposal_type = "REMOVE";
     bool new_vote = false;
     bool expected_response = true;
 
     // Act
-    cons.addMember(existing_member_address);
-    cons.newProposal(new_proposal_name, new_proposal_type);
-    bool could_vote_with_existing_member = cons.vote(existing_member_address, new_vote);
+    cons.removeProposal();
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
+    bool could_vote_with_existing_member = cons.vote(new_vote);
 
     // Assert
     Assert.equal(expected_response, could_vote_with_existing_member, "A vote should be added to a proposal by a member since there is an active one and member exists");
   }
 
-  function testVotingOnActiveProposalWithNonExistingMember() public {
+  /* function testVotingOnActiveProposalWithNonExistingMember() public {
     // Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
-    address non_existing_member_address = 0xFFFF;
+    address existing_member_address = msg.sender;
     bytes32 new_proposal_name = "Kick member 0x01";
     bytes32 new_proposal_type = "REMOVE";
     bool new_vote = false;
     bool expected_response = false;
 
     // Act
-    //cons.addMember(non_existing_member_address);
-    cons.newProposal(new_proposal_name, new_proposal_type);
-    bool could_vote_with_existing_member = cons.vote(non_existing_member_address, new_vote);
+    cons.removeProposal();
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
+    cons.removeMember(existing_member_address);
+    bool could_vote_with_existing_member = cons.vote(new_vote);
 
     // Assert
     Assert.equal(expected_response, could_vote_with_existing_member, "A vote should not be added to a proposal by a member since member doesnt exist");
-  }
+  } */
 
   function testVotingOnActiveProposalWithExistingMemberThatAlreadyVoted() public {
     // Arrange
@@ -160,10 +147,11 @@ contract TestConsortium {
     bool expected_response = false;
 
     // Act
+    cons.removeProposal();
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
     cons.addMember(existing_member_address);
-    cons.newProposal(new_proposal_name, new_proposal_type);
-    cons.vote(existing_member_address, new_vote);
-    bool could_vote_without_active_proposal = cons.vote(existing_member_address, new_vote);
+    cons.vote(new_vote);
+    bool could_vote_without_active_proposal = cons.vote(new_vote);
 
     // Assert
     Assert.equal(expected_response, could_vote_without_active_proposal, "A vote should not be added since the member has already voted");
@@ -180,11 +168,11 @@ contract TestConsortium {
     bool expected_response = false;
 
     // Act
-    cons.addMember(existing_member_address);
-    cons.newProposal(new_proposal_name, new_proposal_type);
+    cons.removeProposal();
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
     cons.setMemberEvaluationState(existing_member_address, is_under_evaluation_state);
-    cons.vote(existing_member_address, new_vote);
-    bool could_vote_while_under_evaluation = cons.vote(existing_member_address, new_vote);
+    cons.vote(new_vote);
+    bool could_vote_while_under_evaluation = cons.vote(new_vote);
 
     // Assert
     Assert.equal(expected_response, could_vote_while_under_evaluation, "A vote should not be added since the member is under evaluation");
@@ -198,7 +186,8 @@ contract TestConsortium {
     bool expected_response = true;
 
     //active
-    cons.newProposal(new_proposal_name, new_proposal_type);
+    cons.removeProposal();
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
     bytes32 name_of_proposal = cons.getActiveProposalName();
     bool found_name_of_proposal = (name_of_proposal == new_proposal_name);
 
@@ -214,7 +203,8 @@ contract TestConsortium {
     bool expected_response = true;
 
     //active
-    cons.newProposal(new_proposal_name, new_proposal_type);
+    cons.removeProposal();
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
     bytes32 type_of_proposal = cons.getActiveProposalType();
     bool found_name_of_proposal = (type_of_proposal == new_proposal_type);
 
@@ -230,7 +220,8 @@ contract TestConsortium {
     bool expected_response = true;
 
     //active
-    cons.newProposal(new_proposal_name, new_proposal_type);
+    cons.removeProposal();
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
     bool activity_of_proposal = cons.getActiveProposalActivity();
 
     //Assert
@@ -240,42 +231,34 @@ contract TestConsortium {
   function testRemovingActiveProposal() public {
     //Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
-    bytes32 new_proposal_name = "Kick member 0x01";
-    bytes32 new_proposal_type = "REMOVE";
     bool expected_response = true;
 
     //active
-    cons.newProposal(new_proposal_name, new_proposal_type);
     bool could_remove_proposal = cons.removeProposal();
 
     //Assert
-    Assert.equal(expected_response, could_remove_proposal,"A proposal should be removed since an active proposal was created");
+    Assert.equal(expected_response, could_remove_proposal,"A proposal should be removed since it was created previously");
   }
 
   function testCountingVotesOnActiveProposal() public {
     //Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
-    address new_member_address = 0x01;
-    address new_member_address_2 = 0x02;
     bytes32 new_proposal_name = "Kick member 0x01";
     bytes32 new_proposal_type = "REMOVE";
-    bool new_member_vote = true;
-    bool new_member_vote_2 = true;
-    uint expected_vote_count = 2;
+    bool vote = true;
+    uint expected_vote_count = 1;
 
     //active
-    cons.addMember(new_member_address);
-    cons.addMember(new_member_address_2);
-    cons.newProposal(new_proposal_name, new_proposal_type);
-    cons.vote(new_member_address, new_member_vote);
-    cons.vote(new_member_address_2, new_member_vote_2);
+    cons.removeProposal();
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
+    cons.vote(vote);
     uint number_of_votes = cons.countVotedActiveProposal();
 
     //Assert
-    Assert.equal(expected_vote_count, number_of_votes,"The vote count should be 2 because the active proposal was voted on twice");
+    Assert.equal(expected_vote_count, number_of_votes,"The vote count should be 1 because the active proposal was voted on once");
   }
 
-  function testConstortiumQuorumOnActiveProposalWithEnoughMembers() public {
+  /* function testConstortiumQuorumOnActiveProposalWithEnoughMembers() public {
     //Arrange
     Consortium cons = Consortium(DeployedAddresses.Consortium());
     address new_member_address = 0x01;
@@ -289,9 +272,9 @@ contract TestConsortium {
     //active
     cons.addMember(new_member_address);
     cons.addMember(new_member_address_2);
-    cons.newProposal(new_proposal_name, new_proposal_type);
-    cons.vote(new_member_address, new_member_vote);
-    cons.vote(new_member_address_2, new_member_vote_2);
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
+    cons.vote(new_member_vote);
+    cons.vote(new_member_vote_2);
     bool reaches_member_quorum = cons.checkMinConsortiumQuorum();
 
     //Assert
@@ -313,12 +296,12 @@ contract TestConsortium {
     cons.addMember(new_member_address);
     cons.addMember(new_member_address_2);
     cons.addMember(new_member_address_3);
-    cons.newProposal(new_proposal_name, new_proposal_type);
-    cons.vote(new_member_address, new_member_vote);
+    cons.newProposal(new_proposal_name, new_proposal_type, 0);
+    cons.vote(new_member_vote);
     bool reaches_member_quorum = cons.checkMinConsortiumQuorum();
 
     //Assert
     Assert.equal(expected_result, reaches_member_quorum,"The quorum should not be reached since not enough members voted on active proposal");
-  }
+  } */
 
 }

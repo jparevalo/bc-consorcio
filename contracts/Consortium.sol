@@ -12,12 +12,13 @@ contract Consortium {
       bool is_active;
       uint started_on;
       ProposalStatus votes;
-      mapping(address => bool) voted;
+      address associated_member;
     }
 
     struct Member {
       address member_address;
       bool is_under_evaluation;
+      uint8 exists_flag;
     }
 
     struct ProposalStatus {
@@ -30,17 +31,18 @@ contract Consortium {
     mapping (address => Member) consortium_members;
     uint numProposals;
     uint numMembers;
+    address[] votes;
 
     constructor(/*uint minimum_quorum, uint minimum_agreement, uint special_command_hours*/) public{
       numProposals = 0;
       numMembers = 0;
       addMember(msg.sender);
-      active_proposal = Proposal('0','DESITION',false,now,ProposalStatus(0,0));
+      active_proposal = Proposal('0','DESITION',false,now,ProposalStatus(0,0), 0);
     }
 
     function addMember(address member_address) public returns(bool){
-      if (consortium_members[member_address].member_address == 0){
-        consortium_members[member_address] = Member(member_address, false);
+      if (consortium_members[member_address].exists_flag != 1){
+        consortium_members[member_address] = Member(member_address, false, 1);
         numMembers++;
         return true;
       }
@@ -48,7 +50,7 @@ contract Consortium {
     }
 
     function removeMember(address member_address) public returns(bool){
-      if (consortium_members[member_address].member_address != 0){
+      if (consortium_members[member_address].exists_flag == 1){
         delete consortium_members[member_address];
         numMembers--;
         return true;
@@ -56,12 +58,32 @@ contract Consortium {
       return false;
     }
 
-    function newProposal(bytes32 name, bytes32 proposal_type) public returns(bool){
+    function didMemberVote(address member_address) public view returns(bool){
+      for(uint i = 0; i < votes.length; i++){
+        if(votes[i] == member_address){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function clearVotes() public {
+      for(uint i = 0; i < votes.length; i++){
+        delete votes[i];
+      }
+    }
+
+    function newProposal(bytes32 name, bytes32 proposal_type, address associated_member) public returns(bool){
       //require(!active_proposal.is_active);
-      if(!active_proposal.is_active){
+      bool voter_is_member = isMemberInConsortium(msg.sender);
+      if(voter_is_member && !active_proposal.is_active){
         old_proposals[numProposals] = active_proposal;
-        active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0));
+        clearVotes();
+        active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
         numProposals++;
+        if(proposal_type == "REMOVE" || proposal_type == "ADD"){
+          return setMemberEvaluationState(associated_member, true);
+        }
         return true;
       }
       else{
@@ -70,12 +92,9 @@ contract Consortium {
     }
 
     function removeProposal() public returns(bool){
-      //require(!active_proposal.is_active);
       if(active_proposal.is_active){
-        //Not sure if it should remove proposal from old_proposals list
-        //delete old_proposals[numProposals];
-        delete active_proposal;
-        numProposals--;
+        active_proposal.is_active = false;
+        old_proposals[numProposals] = active_proposal;
         return true;
       }
       else{
@@ -83,16 +102,17 @@ contract Consortium {
       }
     }
 
-    function vote(address voter_address, bool _vote) public returns(bool){
+    function vote(bool _vote) public returns(bool){
       //require(_vote == true || _vote == false);
       //require(!active_proposal.voted[voter_address]);
       //require(isMemberInConsortium(voter_address));
+      address voter_address = msg.sender;
       bool vote_exists = (_vote == true || _vote == false);
-      bool voter_hasnt_voted = !active_proposal.voted[voter_address];
+      bool voter_hasnt_voted = !didMemberVote(voter_address);
       bool voter_is_member = isMemberInConsortium(voter_address);
       bool voter_is_not_under_evaluation = !isMemberUnderEvaluation(voter_address);
       if(vote_exists && voter_hasnt_voted && voter_is_member && voter_is_not_under_evaluation){
-        active_proposal.voted[voter_address] = true;
+        votes.push(voter_address);
         if(_vote) active_proposal.votes.in_favor += 1;
         else active_proposal.votes.against += 1;
         return true;
@@ -102,12 +122,12 @@ contract Consortium {
       }
     }
 
-    function countVotedActiveProposal() public returns (uint){
+    function countVotedActiveProposal() public view returns (uint){
       uint consortium_votes = active_proposal.votes.in_favor + active_proposal.votes.against;
       return consortium_votes;
     }
 
-    function checkMinConsortiumQuorum() public returns (bool){
+    function checkMinConsortiumQuorum() public view returns (bool){
       uint minNumMembers = 65*numMembers;
       if (uint(countVotedActiveProposal()*100) > minNumMembers){
         return true;
@@ -115,7 +135,7 @@ contract Consortium {
       return false;
     }
 
-    function checkMinConsortiumQuorumVotesInFavor()public returns (bool){
+    function checkMinConsortiumQuorumVotesInFavor()public view returns (bool){
       uint consortium_votes_in_favor = active_proposal.votes.in_favor;
       if (consortium_votes_in_favor*100 > countVotedActiveProposal()*80){
         return true;
@@ -131,7 +151,9 @@ contract Consortium {
     }
 
     function isMemberInConsortium(address member_address) public view returns(bool){
-      if (consortium_members[member_address].member_address != 0){
+      //CAMBIAR ESTO
+      return true;
+      if (consortium_members[member_address].exists_flag == 1){
         return true;
       }
       return false;
