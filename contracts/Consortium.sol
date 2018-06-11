@@ -41,6 +41,7 @@ contract Consortium {
     }
 
     function addMember(address member_address) public returns(bool){
+      //require (checkAddMemberToProposal(member_address));
       if (consortium_members[member_address].exists_flag != 1){
         consortium_members[member_address] = Member(member_address, false, 1);
         numMembers++;
@@ -50,6 +51,7 @@ contract Consortium {
     }
 
     function removeMember(address member_address) public returns(bool){
+      //require (checkRemoveMemberFromProposal(member_address));
       if (consortium_members[member_address].exists_flag == 1){
         delete consortium_members[member_address];
         numMembers--;
@@ -127,37 +129,6 @@ contract Consortium {
       return consortium_votes;
     }
 
-    function checkMinConsortiumQuorum() public view returns (bool){
-      uint minNumMembers = 65*numMembers;
-      if (uint(countVotedActiveProposal()*100) > minNumMembers){
-        return true;
-      }
-      return false;
-    }
-
-    function checkMinConsortiumQuorumVotesInFavor()public view returns (bool){
-      uint consortium_votes_in_favor = active_proposal.votes.in_favor;
-      if (consortium_votes_in_favor*100 > countVotedActiveProposal()*80){
-        return true;
-      }
-      return false;
-    }
-
-    function checkFinishProposal() public{
-      if (checkMinConsortiumQuorum() && checkMinConsortiumQuorumVotesInFavor()){
-        active_proposal.is_active = false;
-        //add old_proposals[active_proposal];
-      }
-    }
-
-    function isMemberInConsortium(address member_address) public view returns(bool){
-      //CAMBIAR ESTO
-      return true;
-      if (consortium_members[member_address].exists_flag == 1){
-        return true;
-      }
-      return false;
-    }
 
     function isMemberUnderEvaluation(address member_address) public view returns(bool){
       return consortium_members[member_address].is_under_evaluation;
@@ -170,6 +141,68 @@ contract Consortium {
       }
       return false;
     }
+
+
+    /* function checkMin65PercentConsortiumQuorum() public view returns (bool){
+      uint minNumMembers = 65*numMembers;
+      if (uint(countVotedActiveProposal()*100) > minNumMembers){
+        return true;
+      }
+      return false;
+    }
+
+    function checkMin50PercentConsortiumQuorum() public view returns (bool){
+      uint minNumMembers = 50*numMembers;
+      if (uint(countVotedActiveProposal()*100) > minNumMembers){
+        return true;
+      }
+      return false;
+    }
+
+    function checkMin80PercentConsortiumQuorumVotesInFavor()public returns (bool){
+      uint consortium_votes_in_favor = active_proposal.votes.in_favor;
+      if (consortium_votes_in_favor*100 > countVotedActiveProposal()*80){
+        return true;
+      }
+      return false;
+    }
+
+    function checkMin50PercentConsortiumQuorumVotesInFavor() public returns (bool){
+      uint consortium_votes_in_favor = active_proposal.votes.in_favor;
+      if (consortium_votes_in_favor*100 > countVotedActiveProposal()*50){
+        return true;
+      }
+      return false;
+    }
+
+    function checkFinishProposal() public{
+      if (checkMin65PercentConsortiumQuorum() && checkMin80PercentConsortiumQuorumVotesInFavor()){
+        active_proposal.is_active = false;
+      }
+    } */
+
+    function isMemberInConsortium(address member_address) public view returns(bool){
+      //CAMBIAR ESTO
+      return true;
+      if (consortium_members[member_address].exists_flag == 1){
+        return true;
+      }
+      return false;
+    }
+
+    /* function checkAddMemberToProposal(address member_address) public returns(bool){
+      if (checkMin50PercentConsortiumQuorum() && checkMin50PercentConsortiumQuorumVotesInFavor()){
+        return true;
+      }
+      return false;
+    }
+
+    function checkRemoveMemberFromProposal(address member_address) public returns(bool){
+      if (checkMin50PercentConsortiumQuorum() && checkMin50PercentConsortiumQuorumVotesInFavor() && consortium_members[member_address].is_under_evaluation){
+        return true;
+      }
+      return false;
+    } */
 
     function getActiveProposalName() public view returns(bytes32){
       return active_proposal.name;
