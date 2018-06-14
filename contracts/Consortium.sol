@@ -48,13 +48,10 @@ contract Consortium {
     }
 
     function removeMember(address member_address) public returns(bool){
-      //require (checkRemoveMemberFromProposal(member_address));
-      if (consortium_members[member_address].exists_flag == 1){
-        delete consortium_members[member_address];
-        numMembers--;
-        return true;
-      }
-      return false;
+      require(consortium_members[member_address].exists_flag == 1);
+      delete consortium_members[member_address];
+      numMembers--;
+      return true;
     }
 
     function didMemberVote(address member_address) public view returns(bool){
@@ -73,21 +70,16 @@ contract Consortium {
     }
 
     function newProposal(bytes32 name, bytes32 proposal_type, address associated_member) public returns(bool){
-      //require(!active_proposal.is_active);
-      bool voter_is_member = isMemberInConsortium(msg.sender);
-      if(voter_is_member && !active_proposal.is_active){
-        old_proposals[numProposals] = active_proposal;
-        clearVotes();
-        active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
-        numProposals++;
-        if(proposal_type == "REMOVE" || proposal_type == "ADD"){
-          return setMemberEvaluationState(associated_member, true);
-        }
-        return true;
+      require(!active_proposal.is_active);
+      require(consortium_members[msg.sender].exists_flag == 1);
+      old_proposals[numProposals] = active_proposal;
+      clearVotes();
+      active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
+      numProposals++;
+      if(proposal_type == "REMOVE" || proposal_type == "ADD"){
+        return setMemberEvaluationState(associated_member, true);
       }
-      else{
-        return false;
-      }
+      return true;
     }
 
     function removeProposal() public returns(bool){
