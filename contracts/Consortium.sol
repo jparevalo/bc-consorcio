@@ -143,43 +143,38 @@ contract Consortium {
     }
 
 
-    /* function checkMin65PercentConsortiumQuorum() public view returns (bool){
-      uint minNumMembers = 65*numMembers;
+    function checkMinPercentConsortiumQuorum(uint decision) public view returns (bool){
+      if (decision == 65){
+        uint minNumMembers = 65*numMembers;
+      }
+      else if (decision == 50){
+        minNumMembers = 50*numMembers;
+      }
       if (uint(countVotedActiveProposal()*100) > minNumMembers){
         return true;
       }
       return false;
     }
 
-    function checkMin50PercentConsortiumQuorum() public view returns (bool){
-      uint minNumMembers = 50*numMembers;
-      if (uint(countVotedActiveProposal()*100) > minNumMembers){
-        return true;
-      }
-      return false;
-    }
-
-    function checkMin80PercentConsortiumQuorumVotesInFavor()public returns (bool){
+    function checkMinPercentConsortiumQuorumVotesInFavor(uint decision)public returns (bool){
       uint consortium_votes_in_favor = active_proposal.votes.in_favor;
-      if (consortium_votes_in_favor*100 > countVotedActiveProposal()*80){
-        return true;
+      if (decision == 80){
+        uint count_voted_active_proposal =  countVotedActiveProposal()*80;
       }
-      return false;
-    }
-
-    function checkMin50PercentConsortiumQuorumVotesInFavor() public returns (bool){
-      uint consortium_votes_in_favor = active_proposal.votes.in_favor;
-      if (consortium_votes_in_favor*100 > countVotedActiveProposal()*50){
+      else if (decision == 50){
+        count_voted_active_proposal =  countVotedActiveProposal()*50
+      }
+      if (consortium_votes_in_favor*100 > count_voted_active_proposal){
         return true;
       }
       return false;
     }
 
     function checkFinishProposal() public{
-      if (checkMin65PercentConsortiumQuorum() && checkMin80PercentConsortiumQuorumVotesInFavor()){
+      if (checkMinPercentConsortiumQuorum(65) && checkMinPercentConsortiumQuorumVotesInFavor(80)){
         active_proposal.is_active = false;
       }
-    } */
+    }
 
     function isMemberInConsortium(address member_address) public view returns(bool){
       //CAMBIAR ESTO
@@ -190,19 +185,19 @@ contract Consortium {
       return false;
     }
 
-    /* function checkAddMemberToProposal(address member_address) public returns(bool){
-      if (checkMin50PercentConsortiumQuorum() && checkMin50PercentConsortiumQuorumVotesInFavor()){
+    function checkAddMemberToProposal(address member_address) public returns(bool){
+      if (checkMinPercentConsortiumQuorum(50) && checkMinPercentConsortiumQuorumVotesInFavor(50)){
         return true;
       }
       return false;
     }
 
     function checkRemoveMemberFromProposal(address member_address) public returns(bool){
-      if (checkMin50PercentConsortiumQuorum() && checkMin50PercentConsortiumQuorumVotesInFavor() && consortium_members[member_address].is_under_evaluation){
+      if (checkMinPercentConsortiumQuorum(50) && checkMinPercentConsortiumQuorumVotesInFavor(50) && consortium_members[member_address].is_under_evaluation){
         return true;
       }
       return false;
-    } */
+    }
 
     function getActiveProposalName() public view returns(bytes32){
       return active_proposal.name;
