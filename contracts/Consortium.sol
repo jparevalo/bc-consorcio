@@ -42,6 +42,7 @@ contract Consortium {
 
     function addMember(address member_address) public returns(bool){
       //require (checkAddMemberToProposal(member_address));
+      //assert(consortium_members[member_address].exists_flag != 1);
       if (consortium_members[member_address].exists_flag != 1){
         consortium_members[member_address] = Member(member_address, false, 1);
         numMembers++;
@@ -178,7 +179,7 @@ contract Consortium {
 
     function isMemberInConsortium(address member_address) public view returns(bool){
       //CAMBIAR ESTO
-      return true;
+      //return true;
       if (consortium_members[member_address].exists_flag == 1){
         return true;
       }
