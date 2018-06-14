@@ -41,13 +41,16 @@ contract Consortium {
     }
 
     function addMember(address member_address) public returns(bool){
-      //require (checkAddMemberToProposal(member_address));
-      if (consortium_members[member_address].exists_flag != 1){
+      require(consortium_members[member_address].exists_flag != 1);
+      /*if (consortium_members[member_address].exists_flag != 1){
         consortium_members[member_address] = Member(member_address, false, 1);
         numMembers++;
         return true;
       }
-      return false;
+      return false;*/
+      consortium_members[member_address] = Member(member_address, false, 1);
+      numMembers++;
+      return true;
     }
 
     function removeMember(address member_address) public returns(bool){
