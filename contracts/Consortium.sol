@@ -41,16 +41,13 @@ contract Consortium {
     }
 
     function addMember(address member_address) public returns(bool){
-      require(consortium_members[member_address].exists_flag != 1);
-      /*if (consortium_members[member_address].exists_flag != 1){
+      //require (checkAddMemberToProposal(member_address));
+      if (consortium_members[member_address].exists_flag != 1){
         consortium_members[member_address] = Member(member_address, false, 1);
         numMembers++;
         return true;
       }
-      return false;*/
-      consortium_members[member_address] = Member(member_address, false, 1);
-      numMembers++;
-      return true;
+      return false;
     }
 
     function removeMember(address member_address) public returns(bool){
@@ -159,13 +156,13 @@ contract Consortium {
       return false;
     }
 
-    function checkMinPercentConsortiumQuorumVotesInFavor(uint decision)public returns (bool){
+    function checkMinPercentConsortiumQuorumVotesInFavor(uint decision)public view returns (bool){
       uint consortium_votes_in_favor = active_proposal.votes.in_favor;
       if (decision == 80){
         uint count_voted_active_proposal =  countVotedActiveProposal()*80;
       }
       else if (decision == 50){
-        count_voted_active_proposal =  countVotedActiveProposal()*50
+        count_voted_active_proposal =  countVotedActiveProposal()*50;
       }
       if (consortium_votes_in_favor*100 > count_voted_active_proposal){
         return true;
@@ -188,14 +185,14 @@ contract Consortium {
       return false;
     }
 
-    function checkAddMemberToProposal(address member_address) public returns(bool){
-      if (checkMinPercentConsortiumQuorum(50) && checkMinPercentConsortiumQuorumVotesInFavor(50)){
+    function checkAddMemberToProposal(address member_address) public view returns(bool){
+      if (checkMinPercentConsortiumQuorum(50) && checkMinPercentConsortiumQuorumVotesInFavor(50) && !consortium_members[member_address].is_under_evaluation){
         return true;
       }
       return false;
     }
 
-    function checkRemoveMemberFromProposal(address member_address) public returns(bool){
+    function checkRemoveMemberFromProposal(address member_address) public view returns(bool){
       if (checkMinPercentConsortiumQuorum(50) && checkMinPercentConsortiumQuorumVotesInFavor(50) && consortium_members[member_address].is_under_evaluation){
         return true;
       }
