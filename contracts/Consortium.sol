@@ -74,7 +74,7 @@ contract Consortium {
       require(consortium_members[associated_member].exists_flag == 1);
       old_proposals[numProposals] = active_proposal;
       clearVotes();
-      Proposal memory active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
+      active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
       numProposals++;
       if(proposal_type == "REMOVE" || proposal_type == "ADD"){
         return setMemberEvaluationState(associated_member, true);
@@ -85,28 +85,25 @@ contract Consortium {
     function removeProposal() public returns(bool){
       require(active_proposal.is_active);
       active_proposal.is_active = false;
-      //old_proposals[numProposals] = active_proposal;
+      old_proposals[numProposals] = active_proposal;
       return true;
     }
 
-    function vote(bool _vote) public returns(bool){
-      //require(_vote == true || _vote == false);
-      //require(!active_proposal.voted[voter_address]);
-      //require(isMemberInConsortium(voter_address));
-      address voter_address = msg.sender;
-      bool vote_exists = (_vote == true || _vote == false);
-      bool voter_hasnt_voted = !didMemberVote(voter_address);
-      bool voter_is_member = isMemberInConsortium(voter_address);
-      bool voter_is_not_under_evaluation = !isMemberUnderEvaluation(voter_address);
-      if(vote_exists && voter_hasnt_voted && voter_is_member && voter_is_not_under_evaluation){
-        votes.push(voter_address);
-        if(_vote) active_proposal.votes.in_favor += 1;
-        else active_proposal.votes.against += 1;
-        return true;
-      }
-      else{
-        return false;
-      }
+    function vote(bool _vote, address voter_address) public returns(bool){
+      require(_vote == true || _vote == false);
+      require(active_proposal.is_active);
+      require(!didMemberVote(voter_address));
+      require(isMemberInConsortium(voter_address));
+      require(!isMemberUnderEvaluation(voter_address));
+      //address voter_address = msg.sender;
+      //bool vote_exists = (_vote == true || _vote == false);
+      //bool voter_hasnt_voted = !didMemberVote(voter_address);
+      //bool voter_is_member = isMemberInConsortium(voter_address);
+      //bool voter_is_not_under_evaluation = !isMemberUnderEvaluation(voter_address);
+      votes.push(voter_address);
+      if(_vote) active_proposal.votes.in_favor += 1;
+      else active_proposal.votes.against += 1;
+      return true;
     }
 
     function countVotedActiveProposal() public view returns (uint){
@@ -120,11 +117,8 @@ contract Consortium {
     }
 
     function setMemberEvaluationState(address member_address, bool evaluation) public returns(bool){
-      if(isMemberInConsortium(member_address)){
-        consortium_members[member_address].is_under_evaluation = evaluation;
-        return true;
-      }
-      return false;
+      require(isMemberInConsortium(member_address));
+      consortium_members[member_address].is_under_evaluation = evaluation;
     }
 
 
@@ -162,12 +156,8 @@ contract Consortium {
     }
 
     function isMemberInConsortium(address member_address) public view returns(bool){
-      //CAMBIAR ESTO
-      //return true;
-      if (consortium_members[member_address].exists_flag == 1){
-        return true;
-      }
-      return false;
+      //CAMBIAR
+      return consortium_members[member_address].exists_flag == 1;
     }
 
     function checkAddMemberToProposal(address member_address) public view returns(bool){

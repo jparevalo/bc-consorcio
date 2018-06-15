@@ -78,4 +78,46 @@ contract("Consortium Async", async(accounts) => {
     let could_remove_proposal = await tryCatch(instance.removeProposal.call(), errTypes.revert);
   });
 
+  it("should add a vote to an active proposal", async () =>{
+      let instance = await Consortium.deployed({from: accounts[0]});
+      let proposal_name = "Should we eat sushi tomorrow?";
+      let proposal_type = "DESITION";
+      let associated_member = accounts[0];
+      let could_create_proposal = await instance.newProposal.call(proposal_name, proposal_type, associated_member);
+      let could_vote_on_proposal = await instance.vote.call(true, associated_member);
+      assert.equal(could_vote_on_proposal, true);
+  });
+
+  it("should not let a member who already voted vote on an active proposal", async () =>{
+      let instance = await Consortium.deployed({from: accounts[0]});
+      let proposal_name = "Should we eat sushi tomorrow?";
+      let proposal_type = "DESITION";
+      let associated_member = accounts[0];
+      let could_create_proposal = await instance.newProposal.call(proposal_name, proposal_type, associated_member);
+      let could_vote_on_proposal = await instance.vote.call(true, associated_member);
+      let could_vote_on_proposal_again = await tryCatch(instance.vote.call(true, associated_member),errTypes.revert);
+  });
+
+  it("should not add a vote to an inactive proposal", async () =>{
+      let instance = await Consortium.deployed({from: accounts[0]});
+      let associated_member = accounts[0];
+      let could_vote_on_proposal = await tryCatch(instance.vote.call(true, associated_member),errTypes.revert);
+  });
+
+  it("should not let a non member vote on an active proposal", async () =>{
+      let instance = await Consortium.deployed({from: accounts[0]});
+      let associated_member = accounts[2];
+      let could_vote_on_proposal = await tryCatch(instance.vote.call(true, associated_member),errTypes.revert);
+  });
+
+  it("should not let a member who is under evaluation vote on an active proposal", async () =>{
+      let instance = await Consortium.deployed({from: accounts[0]});
+      let proposal_name = "Should we eat sushi tomorrow?";
+      let proposal_type = "DESITION";
+      let member_under_evaluation = accounts[0];
+      let set_member_under_evaluation = await instance.setMemberEvaluationState.call(member_under_evaluation, true);
+      let could_create_proposal = await instance.newProposal.call(proposal_name, proposal_type, member_under_evaluation);
+      let could_vote_on_proposal = await tryCatch(instance.vote.call(true, member_under_evaluation),errTypes.revert);
+  });
+
 });
