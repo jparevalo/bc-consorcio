@@ -7,8 +7,8 @@ contract Consortium {
     // be used for variables later.
     // It will represent a single voter.
     struct Proposal {
-      bytes32 name;
-      bytes32 proposal_type;
+      string name;
+      string proposal_type;
       bool is_active;
       uint started_on;
       ProposalStatus votes;
@@ -37,7 +37,7 @@ contract Consortium {
       numProposals = 0;
       numMembers = 0;
       addMember(msg.sender);
-      active_proposal = Proposal('0','DESITION', false, now, ProposalStatus(0,0), 0);
+      active_proposal = Proposal('FIRST','DESITION', false, now, ProposalStatus(0,0), 0);
     }
 
     function addMember(address member_address) public returns(bool){
@@ -69,14 +69,14 @@ contract Consortium {
       }
     }
 
-    function newProposal(bytes32 name, bytes32 proposal_type, address associated_member) public returns(bool){
+    function newProposal(string name, string proposal_type, address associated_member) public returns(bool){
       require(!active_proposal.is_active);
       require(consortium_members[associated_member].exists_flag == 1);
       old_proposals[numProposals] = active_proposal;
       clearVotes();
       active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
       numProposals++;
-      if(proposal_type == "REMOVE" || proposal_type == "ADD"){
+      if(keccak256(proposal_type) == keccak256("REMOVE") || keccak256(proposal_type) == keccak256("ADD")){
         return setMemberEvaluationState(associated_member, true);
       }
       return true;
@@ -174,11 +174,11 @@ contract Consortium {
       return false;
     }
 
-    function getActiveProposalName() public view returns(bytes32){
+    function getActiveProposalName() public view returns(string){
       return active_proposal.name;
     }
 
-    function getActiveProposalType() public view returns(bytes32){
+    function getActiveProposalType() public view returns(string){
       return active_proposal.proposal_type;
     }
 
