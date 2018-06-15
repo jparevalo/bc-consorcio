@@ -37,7 +37,7 @@ contract Consortium {
       numProposals = 0;
       numMembers = 0;
       addMember(msg.sender);
-      active_proposal = Proposal('0','DESITION',false,now,ProposalStatus(0,0), 0);
+      active_proposal = Proposal('0','DESITION', false, now, ProposalStatus(0,0), 0);
     }
 
     function addMember(address member_address) public returns(bool){
@@ -71,7 +71,7 @@ contract Consortium {
 
     function newProposal(bytes32 name, bytes32 proposal_type, address associated_member) public returns(bool){
       require(!active_proposal.is_active);
-      require(consortium_members[msg.sender].exists_flag == 1);
+      require(consortium_members[associated_member].exists_flag == 1);
       old_proposals[numProposals] = active_proposal;
       clearVotes();
       active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
@@ -83,14 +83,10 @@ contract Consortium {
     }
 
     function removeProposal() public returns(bool){
-      if(active_proposal.is_active){
-        active_proposal.is_active = false;
-        old_proposals[numProposals] = active_proposal;
-        return true;
-      }
-      else{
-        return false;
-      }
+      require(active_proposal.is_active);
+      active_proposal.is_active = false;
+      //old_proposals[numProposals] = active_proposal;
+      return true;
     }
 
     function vote(bool _vote) public returns(bool){

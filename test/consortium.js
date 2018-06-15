@@ -47,20 +47,38 @@ contract("Consortium Async", async(accounts) => {
     let instance = await Consortium.deployed({from: accounts[0]});
     let new_proposal_name = "Should we eat sushi tomorrow?";
     let new_proposal_type = "DESITION";
-    let associated_member = 0;
+    let associated_member = accounts[0];
     let could_create_proposal = await instance.newProposal.call(new_proposal_name, new_proposal_type, associated_member);
     assert.equal(could_create_proposal, true);
   });
 
-  it("should not create a new proposal when there is no active one", async () =>{
+  it("should not create a new proposal when there is an active one", async () =>{
     let instance = await Consortium.deployed({from: accounts[0]});
     let first_proposal_name = "Should we eat sushi tomorrow?";
     let first_proposal_type = "DESITION";
-    let associated_member = 0;
+    let associated_member = accounts[0];
     let could_create_proposal = await instance.newProposal.call(first_proposal_name, first_proposal_type, associated_member);
     let new_proposal_name = "Should we eat meat tomorrow?";
     let new_proposal_type = "DESITION";
     let err = await tryCatch(instance.newProposal.call(new_proposal_name, new_proposal_type, associated_member), errTypes.revert);
+  });
+
+  it("should remove an existing proposal when there is an active one", async () =>{
+    let instance = await Consortium.deployed({from: accounts[0]});
+    let new_proposal_name = "Should we eat sushi tomorrow?";
+    let new_proposal_type = "DESITION";
+    let associated_member = accounts[0];
+    let could_create_proposal = await instance.newProposal.call(new_proposal_name, new_proposal_type, associated_member);
+    let proposal_name = await instance.getActiveProposalName.call();
+    let proposal_activ = await instance.getActiveProposalActivity.call();
+    console.log(web3.toAscii(proposal_name) + ": " + proposal_activ);
+    let could_remove_proposal = await instance.removeProposal.call();
+    assert.equal(could_remove_proposal, true);
+  });
+
+  it("should not remove an existing proposal when there is no active one", async () =>{
+    let instance = await Consortium.deployed({from: accounts[0]});
+    let could_remove_proposal = await tryCatch(instance.removeProposal.call(), errTypes.revert);
   });
 
 });
