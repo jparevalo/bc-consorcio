@@ -60,7 +60,7 @@ contract("Consortium Async", async(accounts) => {
     await instance.newProposal(first_proposal_name, first_proposal_type, associated_member);
     let new_proposal_name = "Should we eat meat tomorrow?";
     let new_proposal_type = "DESITION";
-    let err = await tryCatch(instance.newProposal(new_proposal_name, new_proposal_type, associated_member), errTypes.revert);
+    let err = await tryCatch(instance.newProposal.call(new_proposal_name, new_proposal_type, associated_member), errTypes.revert);
   });
 
   it("should remove an existing proposal when there is an active one", async () =>{
