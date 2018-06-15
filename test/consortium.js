@@ -120,4 +120,18 @@ contract("Consortium Async", async(accounts) => {
       let could_vote_on_proposal = await tryCatch(instance.vote.call(true, member_under_evaluation),errTypes.revert);
   });
 
+  it("should be able to count all the votes on an active proposal", async () =>{
+        let instance = await Consortium.deployed({from: accounts[0]});
+        let proposal_name = "Should we eat sushi tomorrow?";
+        let proposal_type = "DESITION";
+        let first_member = accounts[0];
+        let second_member = accounts[1];
+        let added_second_member = await instance.addMember.call(second_member);
+        let could_create_proposal = await instance.newProposal.call(proposal_name, proposal_type, first_member);
+        let first_member_vote_on_proposal = await instance.vote.call(true, first_member);
+        let second_member_vote_on_proposal = await instance.vote.call(true, second_member);
+        let vote_count = await instance.countVotedActiveProposal.call();
+        assert.equal(vote_count, 2);
+  });
+
 });
