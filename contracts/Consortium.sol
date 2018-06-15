@@ -74,7 +74,7 @@ contract Consortium {
       require(consortium_members[associated_member].exists_flag == 1);
       old_proposals[numProposals] = active_proposal;
       clearVotes();
-      active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
+      Proposal memory active_proposal = Proposal(name, proposal_type, true, now, ProposalStatus(0,0), 0);
       numProposals++;
       if(proposal_type == "REMOVE" || proposal_type == "ADD"){
         return setMemberEvaluationState(associated_member, true);

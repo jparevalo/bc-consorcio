@@ -69,9 +69,6 @@ contract("Consortium Async", async(accounts) => {
     let new_proposal_type = "DESITION";
     let associated_member = accounts[0];
     let could_create_proposal = await instance.newProposal.call(new_proposal_name, new_proposal_type, associated_member);
-    let proposal_name = await instance.getActiveProposalName.call();
-    let proposal_activ = await instance.getActiveProposalActivity.call();
-    console.log(web3.toAscii(proposal_name) + ": " + proposal_activ);
     let could_remove_proposal = await instance.removeProposal.call();
     assert.equal(could_remove_proposal, true);
   });
